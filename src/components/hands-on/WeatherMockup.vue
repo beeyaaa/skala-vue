@@ -1,25 +1,25 @@
 <script setup>
 import { ref } from 'vue'
 
+// [과제 요구사항 1.] 날씨 데이터 배열 반응형 상태 정의
 const weatherList = ref([
   { id: 'city_01', name: '서울', temp: 28, status: '맑음' },
   { id: 'city_02', name: '수원', temp: 24, status: '비' },
   { id: 'city_03', name: '부산', temp: 26, status: '구름' },
+  // [과제 요구사항 5.] 추가 도시 데이터: 춘천, 판교
   { id: 'city_04', name: '춘천', temp: 30, status: '안개' },
   { id: 'city_05', name: '판교', temp: 25, status: '흐림' },
 ])
 
+// [과제 요구사항 3.] 한글 도시 검색어 반응형 상태
 const searchQuery = ref('')
+// [과제 요구사항 4.] 선택 도시 상태바 문구 반응형 상태
 const selectedCityInfo = ref('카드를 클릭하거나 검색해 보세요.')
 
-const showDetail = (cityName, status) => {
-  window.alert(`${cityName}의 현재 날씨는 [${status}] 입니다.`)
-}
-
-// 기온 상세보기 팝업에서도 온도 구분을 함께 안내합니다.
-const showTemperatureDetail = (cityName, temp) => {
-  const temperatureLabel = temp >= 25 ? '더워요' : '시원해요'
-  window.alert(`${cityName}의 현재 기온은 ${temp}°C이며, [${temperatureLabel}] 상태입니다.`)
+// [과제 요구사항 4.] 상세보기 클릭: 도시 날씨 alert 출력
+// [과제 요구사항 5.] 상세 정보 확장: 기온 정보 추가
+const showDetail = (cityName, status, temp) => {
+  window.alert(`${cityName}의 현재 날씨는 [${status}]이며, 기온은 ${temp}°C입니다.`)
 }
 </script>
 
@@ -28,6 +28,7 @@ const showTemperatureDetail = (cityName, temp) => {
     <section class="search-box">
       <h3>도시 검색</h3>
       <!-- input type="text" v-model="searchQuery" placeholder="검색할 도시 이름 입력" / -->
+      <!-- [과제 요구사항 3.] :value + @input 기반 한글 입력값 반영 -->
       <input
         type="text"
         :value="searchQuery"
@@ -42,30 +43,24 @@ const showTemperatureDetail = (cityName, temp) => {
     <section class="list-box">
       <h3>지역별 날씨</h3>
 
+      <!-- [과제 요구사항 1.] v-for 반복 렌더링 + id 기반 :key 바인딩 -->
       <div
         v-for="item in weatherList"
         :key="item.id"
         class="weather-card"
         @click="selectedCityInfo = `${item.name}이 선택되었습니다.`"
       >
-        <!-- 변경: 날씨와 기온 상세보기 항목을 하나의 행에 함께 배치합니다. -->
+        <!-- [과제 요구사항 5.] 도시명 + 상세보기 + 온도 라벨 한 행 구성 -->
         <div class="weather-row">
-          <div class="detail-item">
-            <span>{{ item.name }}</span>
-            <button class="btn-detail" @click.stop="showDetail(item.name, item.status)">
-              날씨 상세
-            </button>
-          </div>
+          <span>{{ item.name }}</span>
+          <!-- [과제 요구사항 4.] .stop을 통한 부모 카드 클릭 이벤트 버블링 차단 -->
+          <button class="btn-detail" @click.stop="showDetail(item.name, item.status, item.temp)">
+            상세보기
+          </button>
 
-          <div class="detail-item">
-            <button class="btn-detail" @click.stop="showTemperatureDetail(item.name, item.temp)">
-              기온 상세
-            </button>
-
-            <!-- 변경: 과제 조건에 맞게 기온별 라벨을 카드에 조건부 렌더링합니다. -->
-            <span v-if="item.temp >= 25">🔥 더움 (25도 이상)</span>
-            <span v-else>❄️ 선선함 (25도 미만)</span>
-          </div>
+          <!-- [과제 요구사항 2.] 기온별 더움/선선함 라벨 조건부 렌더링 -->
+          <span v-if="item.temp >= 25">🔥 더움</span>
+          <span v-else>❄️ 선선함</span>
         </div>
       </div>
     </section>
@@ -77,7 +72,7 @@ const showTemperatureDetail = (cityName, temp) => {
 </template>
 
 <style scoped>
-/* 변경: 날씨와 기온 항목 전체를 한 행에 배치합니다. */
+/* 날씨 카드 내부 항목 한 행 배치 */
 .weather-row {
   display: flex;
   align-items: center;
@@ -86,13 +81,7 @@ const showTemperatureDetail = (cityName, temp) => {
   margin: 8px 0;
 }
 
-.detail-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* 외부 예시 CSS의 absolute 설정과 충돌하지 않도록 버튼 위치를 초기화합니다. */
+/* 외부 CSS absolute 설정 충돌 방지: 버튼 위치 초기화 */
 .btn-detail {
   position: static;
 }
