@@ -21,9 +21,15 @@ export default defineConfig([
     },
   },
 
-  // api/ 의 서버리스 함수와 vite.config.js 는 브라우저가 아닌 Node 환경에서 실행됩니다.
+  js.configs.recommended,
+  ...pluginVue.configs['flat/essential'],
+
+  ...pluginOxlint.buildFromOxlintConfigFile('.oxlintrc.json'),
+
+  // [과제 지침] Custom 규칙은 skipFormatting 바로 직전에 배치한다.
+  // api/ 의 서버리스 함수와 vite.config.js 는 브라우저가 아닌 Node 환경에서 실행됨
   {
-    name: 'app/node-files',
+    name: 'app/custom-rules',
     files: ['api/**/*.js', 'vite.config.js'],
     languageOptions: {
       globals: {
@@ -31,11 +37,6 @@ export default defineConfig([
       },
     },
   },
-
-  js.configs.recommended,
-  ...pluginVue.configs['flat/essential'],
-
-  ...pluginOxlint.buildFromOxlintConfigFile('.oxlintrc.json'),
 
   skipFormatting,
 ])
