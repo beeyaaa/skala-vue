@@ -37,3 +37,8 @@ __screenshots__/
 
 # Vite
 *.timestamp-*-*.mjs
+
+# [Hands-on 8 요구사항] API Key가 들어가는 환경 변수 파일은 커밋하지 않습니다.
+.env
+.env.*
+!.env.example

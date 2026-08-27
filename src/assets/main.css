@@ -1,9 +1,31 @@
 @import './base.css';
 
+/* [Hands-on 7] Element Plus의 기본 파란색을 서비스의 올리브·오프화이트 톤에 맞춥니다. */
+:root {
+  --el-color-primary: #66783d;
+  --el-color-primary-light-3: #84935f;
+  --el-color-primary-light-5: #a3ae84;
+  --el-color-primary-light-7: #c2c9ae;
+  --el-color-primary-light-8: #d1d6c4;
+  --el-color-primary-light-9: #e8ebe2;
+  --el-color-success: #66783d;
+  --el-color-warning: #b1833e;
+  --el-color-danger: #a95749;
+  --el-color-info: #727a76;
+  --el-border-radius-base: 10px;
+  --el-font-family: inherit;
+}
+
+.el-message {
+  border-color: #d8ddcf;
+  background: #fbfaf5;
+}
+
 #app {
-  max-width: 1280px;
+  width: 100%;
+  max-width: none;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0;
   font-weight: normal;
 }
 
@@ -23,13 +45,6 @@ a,
 
 @media (min-width: 1024px) {
   body {
-    display: flex;
-    place-items: center;
-  }
-
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
+    display: block;
   }
 }

@@ -1,83 +1,195 @@
 <script setup>
-// App.vue는 애플리케이션의 최상위(Root) 컴포넌트이다.
-// 각 코드 챌린지 컴포넌트를 import한 뒤 template에 배치하면 한 화면에서 결과를 확인할 수 있다.
+import { computed } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useRoute } from 'vue-router'
 
-// 1. v-on 이벤트 처리 실습
-import EventHandlerVOn from './components/code-challenge/EventHandler_v-on.vue'
-import EventObject from './components/code-challenge/EventObject.vue'
-import EventModifier from './components/code-challenge/EventModifier.vue'
+import ClothesSearchBar from './components/clothes/ClothesSearchBar.vue'
+import ClothesWeatherFilter from './components/clothes/ClothesWeatherFilter.vue'
+import UnitToggler from './components/clothes/UnitToggler.vue'
+import { useWeatherStore } from './stores/weatherStore.js'
 
-// 2. v-model Form 데이터 바인딩 실습
-import FormDataBindingVariables from './components/code-challenge/FormDataBinding_Declaringv-modelVariables.vue'
-import FormDataBindingModifier from './components/code-challenge/FormDataBinding_Modifier.vue'
+const route = useRoute()
 
-// 3. 컴포넌트 Scoped CSS와 외부 CSS 실습
-import VueStyle from './components/code-challenge/VueStyle.vue'
+// [Hands-on 3] 검색·필터 컴포넌트는 Props/Emits 구조를 유지한 채 위치만 이동.
+// App.vue는 Store와 이어 주는 얇은 부모 역할
+const weatherStore = useWeatherStore()
+const { searchQuery, selectedWeatherType, weatherTypeFilters } = storeToRefs(weatherStore)
 
-// 4. v-for, v-if, v-bind, v-on을 종합한 날씨 Mockup Hands-on
-import WeatherMockup from './components/hands-on/WeatherMockup.vue'
-
-// 5. computed, watch, watchEffect를 적용한 날씨 Composition Hands-on
-import WeatherComposition from './components/hands-on/WeatherComposition.vue'
+// 오늘 뭐 입지? 전용 화면에서만 중앙 타이틀과 지도 컨트롤 노출
+const isClothesService = computed(() => route.path.startsWith('/clothes'))
 </script>
 
 <template>
-  <!-- 모든 코드 챌린지를 감싸는 최상위 레이아웃 -->
-  <main class="practice-container">
-    <!-- v-on: 클릭 이벤트, 이벤트 객체, 이벤트 수식어 확인 -->
-    <section class="practice-group">
-      <h1>1. Vue Event Handling</h1>
-      <EventHandlerVOn />
-      <EventObject />
-      <EventModifier />
-    </section>
+  <div class="app-shell">
+    <!-- [라우팅 과제 요구사항 2.] 새로고침 없이 URL을 변경하는 Navigation Bar -->
+    <header class="app-header">
+      <div class="header-left">
+        <nav class="navigation" aria-label="주요 메뉴">
+          <RouterLink to="/">날씨 대시보드</RouterLink>
+          <RouterLink to="/clothes">오늘 뭐 입지?</RouterLink>
+          <RouterLink to="/about">서비스 소개</RouterLink>
+        </nav>
+      </div>
 
-    <!-- v-model: 입력 요소와 반응형 데이터의 양방향 바인딩 확인 -->
-    <section class="practice-group">
-      <h1>2. Vue Form Data Binding</h1>
-      <FormDataBindingVariables />
-      <FormDataBindingModifier />
-    </section>
+      <!-- 오늘 뭐 입지? 서비스의 현재 화면 제목 -->
+      <div v-if="isClothesService" class="service-heading">
+        <strong>오늘 뭐 입지?</strong>
+      </div>
 
-    <!-- style scoped와 외부 CSS 파일의 적용 범위 확인 -->
-    <section class="practice-group">
-      <h1>3. Vue Style Handling</h1>
-      <VueStyle />
-    </section>
+      <!-- 변경: 지도 영역 확보를 위해 날씨 필터와 도시 검색을 단위 토글 옆으로 집약 -->
+      <div class="header-controls">
+        <ClothesSearchBar
+          v-if="isClothesService"
+          :current-query="searchQuery"
+          @update-query="weatherStore.updateSearchQuery"
+        />
 
-    <!-- 기본 Directive와 이벤트 처리를 종합한 날씨 대시보드 Hands-on -->
-    <section class="practice-group">
-      <h1>4. Hands-on - Weather Mockup</h1>
-      <WeatherMockup />
-    </section>
+        <ClothesWeatherFilter
+          v-if="isClothesService"
+          :filters="weatherTypeFilters"
+          :selected-type="selectedWeatherType"
+          @update-type="weatherStore.updateWeatherType"
+        />
 
-    <!-- computed 검색 필터와 반응형 상태 감시 기능 확인 -->
-    <section class="practice-group">
-      <h1>5. Hands-on - Weather Composition</h1>
-      <WeatherComposition />
-    </section>
-  </main>
+        <!-- [Hands-on 5 요구사항 2.] Navigation Bar 옆에 전역 단위 설정 배치 -->
+        <UnitToggler />
+      </div>
+    </header>
+
+    <!-- [라우팅 과제 요구사항 2.] 현재 URL과 일치하는 View가 출력되는 영역 -->
+    <main class="page-container">
+      <RouterView />
+    </main>
+  </div>
 </template>
 
 <style scoped>
-/* 실습 결과가 화면 가장자리에 붙지 않도록 전체 여백과 최대 너비를 설정한다. */
-.practice-container {
-  width: min(100% - 40px, 960px);
+.app-shell {
+  min-height: 100vh;
+  background: #f3f6f7;
+  color: #29302d;
+}
+
+/*
+  변경: 내비게이션·지도 컨트롤이 늘어나도 중앙 타이틀과 겹치지 않도록 3열 그리드 사용.
+  양쪽 1fr이 항상 같은 폭 → 가운데 타이틀은 화면 정중앙 유지
+*/
+.app-header {
+  position: relative;
+  z-index: 50;
+  display: grid;
+  align-items: center;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 20px;
+  min-height: 82px;
+  padding: 0 max(24px, calc((100% - 1380px) / 2));
+  border-bottom: 1px solid #e0e4e2;
+  background: rgb(255 255 255 / 94%);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 22px;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.service-heading {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.service-heading strong {
+  color: #29302d;
+  font-size: clamp(20px, 2vw, 30px);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  white-space: nowrap;
+}
+
+.navigation {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navigation a {
+  position: relative;
+  flex: 0 0 auto;
+  padding: 29px 8px 27px;
+  color: #505955;
+  font-size: 13px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.navigation a.router-link-active {
+  background: transparent;
+  color: #586b31;
+  font-weight: 700;
+}
+
+.navigation a.router-link-active::after {
+  position: absolute;
+  right: 6px;
+  bottom: -1px;
+  left: 6px;
+  height: 2px;
+  background: #66783d;
+  content: '';
+}
+
+.page-container {
+  width: min(100% - 32px, 1440px);
   margin: 0 auto;
-  padding: 40px 0;
+  padding: 0 0 28px;
 }
 
-/* 코드 챌린지 주제별 영역을 시각적으로 구분한다. */
-.practice-group {
-  padding: 28px 0;
-  border-bottom: 1px solid #d9d9d9;
-}
+/* 폭이 좁아지면 중앙 타이틀 유지 공간 부족 → 세로 배치 */
+@media (max-width: 1180px) {
+  .app-header {
+    align-items: flex-start;
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding: 16px 22px 0;
+  }
 
-.practice-group:last-child {
-  border-bottom: 0;
-}
+  .header-left {
+    flex-wrap: wrap;
+    order: 1;
+    width: 100%;
+    gap: 0 18px;
+  }
 
-.practice-group > h1 {
-  margin-bottom: 24px;
+  .service-heading {
+    align-items: flex-start;
+    order: 0;
+    margin-bottom: 6px;
+  }
+
+  .header-controls {
+    justify-content: flex-start;
+    order: 2;
+    width: 100%;
+    padding-bottom: 12px;
+    overflow-x: auto;
+  }
+
+  .navigation a {
+    padding: 12px 8px;
+  }
+
+  .page-container {
+    width: 100%;
+  }
 }
 </style>
