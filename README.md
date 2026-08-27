@@ -1,6 +1,6 @@
 # 오늘 뭐 입지?
 
-날씨 대시보드 Hands-on 과제(1~8단계)와, 그 위에 확장한 옷차림 추천 서비스 **"오늘 뭐 입지?"** 를 담은 Vue 3 프로젝트
+날씨 대시보드 Hands-on 과제(0~8단계)와, 그 위에 확장한 옷차림 추천 서비스 **"오늘 뭐 입지?"** 를 담은 Vue 3 프로젝트
 
 전국 22개 도시의 실시간 날씨를 지도에 표시하고, 기온·예보·대기질·기상특보를 종합해 **오늘 무엇을 입고 무엇을 챙길지** 안내
 
@@ -50,6 +50,46 @@ Hands-on 1~4의 실습 결과를 탭으로 전환하며 확인
 ---
 
 ## 2. 단계별 구현 및 개인 Customization
+
+### Hands-on 0 — Project Scaffolding
+
+**개발 환경 구성**
+
+| 항목    | 확인 내용                                                   |
+| ------- | ----------------------------------------------------------- |
+| OS      | macOS — WSL2/Ubuntu 설치 불필요 (Windows 사용자 대상)       |
+| Node.js | v26.5.0 (프로젝트 요구 사양 `^20.19.0 \|\| >=22.12.0` 충족) |
+| npm     | 12.0.1                                                      |
+| 편집기  | VS Code + Vue (Official) Extension                          |
+
+**프로젝트 생성 · 실행 · 동작 확인**
+
+`npm create vue@latest`로 `skala-vue` 프로젝트를 생성하고, Router·Pinia·ESLint·Prettier 옵션을 포함해 스캐폴딩. `npm install` 후 `npm run dev`로 기동해 기본 화면(`You did it!`)과 `/about` 라우팅 동작 확인.
+
+생성된 소스 구조를 훑어 `main.js`(앱 생성·플러그인 주입) → `App.vue`(RouterLink·RouterView) → `router/index.js`(라우트 정의) → `views/`(페이지 컴포넌트)로 이어지는 흐름을 파악.
+
+**HMR (Hot Module Replacement) 확인**
+
+개발 서버를 켠 상태로 `src/views/AboutView.vue`의 `<template>` 문구를 수정 → 저장 즉시 브라우저가 새로고침 없이 갱신되는 것을 확인. 페이지 상태를 유지한 채 변경분만 교체된다는 점을 확인.
+
+> 이후 Hands-on 4에서 라우트를 직접 구성하면서 스캐폴딩 기본 View(`HomeView` · `AboutView`)는 제거했고, 현재는 `WeatherHomeView` · `WeatherAboutView`가 그 자리를 대신함.
+
+**Vue Devtools 기능 확인**
+
+`vite-plugin-vue-devtools`가 적용되어 있어 `http://localhost:3000/__devtools__/`로 접속하거나 앱에서 `Option(⌥) + Shift(⇧) + D`로 실행.
+
+| 메뉴           | 확인 내용                                            |
+| -------------- | ---------------------------------------------------- |
+| Components     | 컴포넌트 트리와 Props/Emits를 실시간 확인·수정       |
+| Pages          | 정의된 라우트와 파일 경로 대응 확인                  |
+| Pinia          | `configStore` · `weatherStore` 상태를 직접 조회·변경 |
+| Timeline       | 반응형 이벤트와 컴포넌트 렌더링 기록 확인            |
+| Assets         | `public/` 이미지·폰트 등 정적 자원 확인              |
+| Router         | 등록된 라우트 목록과 현재 매칭 상태 확인             |
+| Graph          | 모듈 간 의존 관계 시각화                             |
+| Inspect/Search | Vite 빌드 모듈 변환 과정 확인                        |
+
+> 단위 토글이 모든 화면에 반영되는지 점검할 때 Devtools의 Pinia 탭에서 `configStore.unit` 값을 직접 바꿔 가며 확인.
 
 ### Hands-on 1 — Weather Mockup
 
@@ -320,7 +360,7 @@ src/
 │   └── weatherStore.js          # 날씨 목록·검색·필터·API 연동·캐시
 ├── components/
 │   ├── exercise/                # Hands-on 1~3 실습 컴포넌트
-│   └── clothes/                 # 오늘 뭐 입지? 전용 컴포넌트
+│   └── clothes/                 # 오늘 뭐 입지?(Hands-on 최종본) 전용 컴포넌트
 └── views/
     ├── WeatherHomeView.vue      # 메인 대시보드
     ├── WeatherDetailView.vue    # 지역 상세
@@ -354,7 +394,7 @@ npm run preview       # 빌드 결과 확인
 
 ---
 
-## 8. 알려진 제약
+## 8. 한계
 
 - **서버리스 함수를 지원하는 호스팅 필요** — Vercel·Netlify에서는 그대로 동작하나, GitHub Pages처럼 정적 파일만 제공하는 호스팅에서는 `/api/*` 부재로 실시간 데이터 수신 불가(Mock Data로 표시)
 - 검색으로 추가한 지역은 임시 표시 — 새로고침 시 소멸, 해당 URL 직접 접속 시 상세 정보 조회 불가
