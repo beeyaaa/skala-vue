@@ -4,7 +4,7 @@
 
 전국 22개 도시의 실시간 날씨를 지도에 표시하고, 기온·예보·대기질·기상특보를 종합해 **오늘 무엇을 입고 무엇을 챙길지** 안내
 
-### 👉 배포 주소 — _(배포 후 추가)_
+### 👉 [https://skala-vue-beeyaaa.vercel.app](https://skala-vue-beeyaaa.vercel.app)
 
 접속 즉시 사용 가능 — 별도 설치나 API Key 발급 불필요
 
